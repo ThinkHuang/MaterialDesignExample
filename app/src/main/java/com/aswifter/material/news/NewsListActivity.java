@@ -14,7 +14,6 @@ import android.view.View;
 
 import com.aswifter.material.R;
 import com.aswifter.material.common.ThreadPool;
-import com.aswifter.material.widget.DividerItemDecoration;
 import com.aswifter.material.widget.DividerOffsetDecoration;
 import com.aswifter.material.widget.PullToRefreshLayout;
 import com.aswifter.material.widget.RecyclerItemClickListener;
@@ -103,7 +102,7 @@ public class NewsListActivity extends AppCompatActivity implements Updatable {
 
             @Override
             public void accept(@NonNull List<Story> value) {
-                if(page > 1){
+                if(page > 0){
                     mAdapter.addData(value);
                 }else{
                     mAdapter.updateData(value);
@@ -123,6 +122,7 @@ public class NewsListActivity extends AppCompatActivity implements Updatable {
         mRecyclerView.addOnItemTouchListener(new RecyclerItemClickListener(this, new RecyclerItemClickListener.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
+                NewsDataManager.getInstance(getApplication()).markAsRead(mAdapter.getItem(position));
                 Intent intent = new Intent(NewsListActivity.this,NewsDetailActivity.class);
                 ActivityOptionsCompat options =
                         ActivityOptionsCompat.makeSceneTransitionAnimation(NewsListActivity.this,
@@ -153,7 +153,7 @@ public class NewsListActivity extends AppCompatActivity implements Updatable {
     }
 
     private void getHistoryData(){
-        String time = getDateString(new Date());
+        String time = NewsDataManager.getDateString(new Date());
         String key = String.valueOf(Long.valueOf(time) - page);
         newsObservable.refreshNews(key);
         page+=1;
@@ -165,14 +165,4 @@ public class NewsListActivity extends AppCompatActivity implements Updatable {
         repository.get().ifFailedSendTo(throwableReceiver).ifSucceededSendTo(receiver);
     }
 
-    public static String getDateString(Date date){
-        String year =(date.getYear()+1900)+"";
-        String mm = (date.getMonth()+1)+"";
-        if(Integer.valueOf(mm).intValue()<10){
-            mm="0"+mm;
-        }
-        String day = date.getDate()+"";
-        if(Integer.valueOf(day).intValue()<10)day="0"+day;
-        return year+mm+day;
-    }
 }

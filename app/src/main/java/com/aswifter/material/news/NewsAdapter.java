@@ -10,8 +10,10 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.aswifter.material.MaterialApplication;
 import com.aswifter.material.R;
 import com.bumptech.glide.Glide;
+import com.material.zhihu.StoryRecord;
 
 import java.util.List;
 import java.util.Objects;
@@ -45,6 +47,7 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.ViewHolder> {
     public NewsAdapter(Context context, List<Story> myDataset) {
         this.mDataset = myDataset;
         context.getTheme().resolveAttribute(R.attr.selectableItemBackground, mTypedValue, true);
+        this.context = context;
         mBackground = mTypedValue.resourceId;
     }
 
@@ -67,6 +70,12 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.ViewHolder> {
         // - replace the contents of the view with that element
         Story story = mDataset.get(position);
         holder.newsTitleTV.setText(mDataset.get(position).getTitle());
+        StoryRecord storyRecord = NewsDataManager.getInstance(MaterialApplication.application).getStoryRecordByStory(story);
+        if(storyRecord != null && storyRecord.getMark_read()){
+            holder.newsTitleTV.setTextColor(context.getResources().getColor(R.color.google_green));
+        }else{
+            holder.newsTitleTV.setTextColor(context.getResources().getColor(R.color.primary_text));
+        }
         Glide.clear(holder.newsIV);
         Glide.with(holder.newsIV.getContext())
                 .load(story.getImages().get(0))

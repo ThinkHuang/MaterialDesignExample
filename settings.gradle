@@ -1,4 +1,4 @@
-include ':app',':agera'
+include ':app', ':agera', ':DaoGenerator', ':DaoExampleGenerator'
 gradle.ext.versionCode = 10100
 gradle.ext.versionName = '1.1.0-SNAPSHOT'
 

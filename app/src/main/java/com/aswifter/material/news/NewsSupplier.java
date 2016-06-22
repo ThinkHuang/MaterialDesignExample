@@ -3,11 +3,13 @@ package com.aswifter.material.news;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
+import com.aswifter.material.MaterialApplication;
 import com.aswifter.material.common.AppClient;
 import com.google.android.agera.Result;
 import com.google.android.agera.Supplier;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -29,10 +31,22 @@ public class NewsSupplier implements Supplier<Result<List<Story>>> {
 
     private List<Story>getStoryList(){
         try {
+            List<Story> stories = null;
+            String saveKey;
             if(TextUtils.isEmpty(newsKey)){
-                return AppClient.httpService.getLatestNews().execute().body().getStories();
-            }else
-                return AppClient.httpService.getHistoryNews(newsKey).execute().body().getStories();
+                saveKey = NewsDataManager.getDateString(new Date());
+                stories =  AppClient.httpService.getLatestNews().execute().body().getStories();
+            }else{
+                saveKey = String.valueOf(Long.valueOf(newsKey)-1);
+                stories = NewsDataManager.getInstance(MaterialApplication.application)
+                        .getStoryList(saveKey);
+                if(stories != null && stories.size() > 0){
+                    return stories;
+                }
+                stories =  AppClient.httpService.getHistoryNews(newsKey).execute().body().getStories();
+            }
+            NewsDataManager.getInstance(MaterialApplication.application).saveStoryList(stories, saveKey);
+            return stories;
         } catch (IOException e) {
             e.printStackTrace();
             return null;

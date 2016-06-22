@@ -20,6 +20,10 @@ public class Story implements Parcelable{
     private List<String> images;
     private String title;
 
+    public Story(){
+
+    }
+
     protected Story(Parcel in) {
         type = in.readInt();
         id = in.readLong();
