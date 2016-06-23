@@ -6,7 +6,6 @@ package com.material.zhihu;
  */
 public class StoryRecord {
 
-    private Long id;
     private String time;
     private String story_id;
     private String story_title;
@@ -16,25 +15,16 @@ public class StoryRecord {
     public StoryRecord() {
     }
 
-    public StoryRecord(Long id) {
-        this.id = id;
+    public StoryRecord(String story_id) {
+        this.story_id = story_id;
     }
 
-    public StoryRecord(Long id, String time, String story_id, String story_title, String stroy_image_url, Boolean mark_read) {
-        this.id = id;
+    public StoryRecord(String time, String story_id, String story_title, String stroy_image_url, Boolean mark_read) {
         this.time = time;
         this.story_id = story_id;
         this.story_title = story_title;
         this.stroy_image_url = stroy_image_url;
         this.mark_read = mark_read;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getTime() {

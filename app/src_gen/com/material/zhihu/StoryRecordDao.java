@@ -14,7 +14,7 @@ import com.material.zhihu.StoryRecord;
 /** 
  * DAO for table "STORY_RECORD".
 */
-public class StoryRecordDao extends AbstractDao<StoryRecord, Long> {
+public class StoryRecordDao extends AbstractDao<StoryRecord, String> {
 
     public static final String TABLENAME = "STORY_RECORD";
 
@@ -23,12 +23,11 @@ public class StoryRecordDao extends AbstractDao<StoryRecord, Long> {
      * Can be used for QueryBuilder and for referencing column names.
     */
     public static class Properties {
-        public final static Property Id = new Property(0, Long.class, "id", true, "_id");
-        public final static Property Time = new Property(1, String.class, "time", false, "TIME");
-        public final static Property Story_id = new Property(2, String.class, "story_id", false, "STORY_ID");
-        public final static Property Story_title = new Property(3, String.class, "story_title", false, "STORY_TITLE");
-        public final static Property Stroy_image_url = new Property(4, String.class, "stroy_image_url", false, "STROY_IMAGE_URL");
-        public final static Property Mark_read = new Property(5, Boolean.class, "mark_read", false, "MARK_READ");
+        public final static Property Time = new Property(0, String.class, "time", false, "TIME");
+        public final static Property Story_id = new Property(1, String.class, "story_id", true, "STORY_ID");
+        public final static Property Story_title = new Property(2, String.class, "story_title", false, "STORY_TITLE");
+        public final static Property Stroy_image_url = new Property(3, String.class, "stroy_image_url", false, "STROY_IMAGE_URL");
+        public final static Property Mark_read = new Property(4, Boolean.class, "mark_read", false, "MARK_READ");
     };
 
 
@@ -44,12 +43,14 @@ public class StoryRecordDao extends AbstractDao<StoryRecord, Long> {
     public static void createTable(SQLiteDatabase db, boolean ifNotExists) {
         String constraint = ifNotExists? "IF NOT EXISTS ": "";
         db.execSQL("CREATE TABLE " + constraint + "\"STORY_RECORD\" (" + //
-                "\"_id\" INTEGER PRIMARY KEY ," + // 0: id
-                "\"TIME\" TEXT," + // 1: time
-                "\"STORY_ID\" TEXT," + // 2: story_id
-                "\"STORY_TITLE\" TEXT," + // 3: story_title
-                "\"STROY_IMAGE_URL\" TEXT," + // 4: stroy_image_url
-                "\"MARK_READ\" INTEGER);"); // 5: mark_read
+                "\"TIME\" TEXT," + // 0: time
+                "\"STORY_ID\" TEXT PRIMARY KEY NOT NULL ," + // 1: story_id
+                "\"STORY_TITLE\" TEXT," + // 2: story_title
+                "\"STROY_IMAGE_URL\" TEXT," + // 3: stroy_image_url
+                "\"MARK_READ\" INTEGER);"); // 4: mark_read
+        // Add Indexes
+        db.execSQL("CREATE INDEX " + constraint + "IDX_STORY_RECORD_STORY_ID ON STORY_RECORD" +
+                " (\"STORY_ID\");");
     }
 
     /** Drops the underlying database table. */
@@ -63,53 +64,47 @@ public class StoryRecordDao extends AbstractDao<StoryRecord, Long> {
     protected void bindValues(SQLiteStatement stmt, StoryRecord entity) {
         stmt.clearBindings();
  
-        Long id = entity.getId();
-        if (id != null) {
-            stmt.bindLong(1, id);
-        }
- 
         String time = entity.getTime();
         if (time != null) {
-            stmt.bindString(2, time);
+            stmt.bindString(1, time);
         }
  
         String story_id = entity.getStory_id();
         if (story_id != null) {
-            stmt.bindString(3, story_id);
+            stmt.bindString(2, story_id);
         }
  
         String story_title = entity.getStory_title();
         if (story_title != null) {
-            stmt.bindString(4, story_title);
+            stmt.bindString(3, story_title);
         }
  
         String stroy_image_url = entity.getStroy_image_url();
         if (stroy_image_url != null) {
-            stmt.bindString(5, stroy_image_url);
+            stmt.bindString(4, stroy_image_url);
         }
  
         Boolean mark_read = entity.getMark_read();
         if (mark_read != null) {
-            stmt.bindLong(6, mark_read ? 1L: 0L);
+            stmt.bindLong(5, mark_read ? 1L: 0L);
         }
     }
 
     /** @inheritdoc */
     @Override
-    public Long readKey(Cursor cursor, int offset) {
-        return cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0);
+    public String readKey(Cursor cursor, int offset) {
+        return cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1);
     }    
 
     /** @inheritdoc */
     @Override
     public StoryRecord readEntity(Cursor cursor, int offset) {
         StoryRecord entity = new StoryRecord( //
-            cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // id
-            cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1), // time
-            cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2), // story_id
-            cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3), // story_title
-            cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4), // stroy_image_url
-            cursor.isNull(offset + 5) ? null : cursor.getShort(offset + 5) != 0 // mark_read
+            cursor.isNull(offset + 0) ? null : cursor.getString(offset + 0), // time
+            cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1), // story_id
+            cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2), // story_title
+            cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3), // stroy_image_url
+            cursor.isNull(offset + 4) ? null : cursor.getShort(offset + 4) != 0 // mark_read
         );
         return entity;
     }
@@ -117,26 +112,24 @@ public class StoryRecordDao extends AbstractDao<StoryRecord, Long> {
     /** @inheritdoc */
     @Override
     public void readEntity(Cursor cursor, StoryRecord entity, int offset) {
-        entity.setId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
-        entity.setTime(cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1));
-        entity.setStory_id(cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2));
-        entity.setStory_title(cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3));
-        entity.setStroy_image_url(cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4));
-        entity.setMark_read(cursor.isNull(offset + 5) ? null : cursor.getShort(offset + 5) != 0);
+        entity.setTime(cursor.isNull(offset + 0) ? null : cursor.getString(offset + 0));
+        entity.setStory_id(cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1));
+        entity.setStory_title(cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2));
+        entity.setStroy_image_url(cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3));
+        entity.setMark_read(cursor.isNull(offset + 4) ? null : cursor.getShort(offset + 4) != 0);
      }
     
     /** @inheritdoc */
     @Override
-    protected Long updateKeyAfterInsert(StoryRecord entity, long rowId) {
-        entity.setId(rowId);
-        return rowId;
+    protected String updateKeyAfterInsert(StoryRecord entity, long rowId) {
+        return entity.getStory_id();
     }
     
     /** @inheritdoc */
     @Override
-    public Long getKey(StoryRecord entity) {
+    public String getKey(StoryRecord entity) {
         if(entity != null) {
-            return entity.getId();
+            return entity.getStory_id();
         } else {
             return null;
         }

@@ -31,7 +31,7 @@ import de.greenrobot.daogenerator.ToMany;
 public class ExampleDaoGenerator {
 
     public static void main(String[] args) throws Exception {
-        Schema schema = new Schema(1000, "com.material.zhihu");
+        Schema schema = new Schema(1003, "com.material.zhihu");
         addStoryRecord(schema);
 
 //        addNote(schema);
@@ -77,9 +77,8 @@ public class ExampleDaoGenerator {
 
     private static void addStoryRecord(Schema schema){
         Entity storyRecord = schema.addEntity("StoryRecord");
-        storyRecord.addIdProperty();
         storyRecord.addStringProperty("time");
-        storyRecord.addStringProperty("story_id");
+        storyRecord.addStringProperty("story_id").index().primaryKey();
         storyRecord.addStringProperty("story_title");
         storyRecord.addStringProperty("stroy_image_url");
         storyRecord.addBooleanProperty("mark_read");
