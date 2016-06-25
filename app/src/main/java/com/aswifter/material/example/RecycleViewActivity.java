@@ -1,117 +1,95 @@
-package com.aswifter.material;
+package com.aswifter.material.example;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
+import android.support.design.widget.Snackbar;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.aswifter.material.example.AppBarDetailActivity;
-import com.aswifter.material.example.BottomTabActivity;
-import com.aswifter.material.example.CardViewActivity;
-import com.aswifter.material.example.EditTextFLActivity;
-import com.aswifter.material.example.RecycleViewActivity;
+import com.aswifter.material.R;
 import com.aswifter.material.widget.DividerItemDecoration;
-import com.aswifter.material.widget.RecyclerItemClickListener;
 
-/**
- * Created by Chenyc on 15/6/27.
- */
-public class ExampleFragment extends Fragment {
+public class RecycleViewActivity extends AppCompatActivity {
 
     private RecyclerView mRecyclerView;
     private LinearLayoutManager mLayoutManager;
     private String[] myDataset;
     private MyAdapter mAdapter;
 
-    @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_example, null);
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_recycler_view);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setTitle(R.string.title_language);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setHomeButtonEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onBackPressed();
+            }
+        });
 
-        //RecyclerView
-        mRecyclerView = (RecyclerView) view.findViewById(R.id.recyclerView);
+        mRecyclerView = (RecyclerView) findViewById(R.id.recyclerView);
+
+        // use this setting to improve performance if you know that changes
+        // in content do not change the layout size of the RecyclerView
         mRecyclerView.setHasFixedSize(true);
-        mLayoutManager = new LinearLayoutManager(getActivity());
+
+        // use a linear layout manager
+        mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
-        mRecyclerView.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL_LIST));
-        mRecyclerView.addOnItemTouchListener(new RecyclerItemClickListener(getActivity(), onItemClickListener));
+
+        mRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL_LIST));
+
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
 
         // specify an adapter (see also next example)
-        myDataset = new String[]{"RecycleView",
-                "TextInputLayout", "CardView", "AppBar & TabLayout","Bottom Tab"
-        };
-        mAdapter = new MyAdapter(getActivity(), myDataset);
+        myDataset = new String[]{"JAVA", "Objective-C", "C", "C++", "Swift",
+                "GO", "JavaScript", "Python", "Ruby", "HTML", "SQL"};
+        mAdapter = new MyAdapter(this,myDataset);
         mRecyclerView.setAdapter(mAdapter);
-        return view;
     }
-
-
-    private RecyclerItemClickListener.OnItemClickListener onItemClickListener = new RecyclerItemClickListener.OnItemClickListener() {
-        @Override
-        public void onItemClick(View view, int position) {
-            Intent intent = null;
-            switch (position) {
-                case 0:
-                    intent = new Intent(getActivity(), RecycleViewActivity.class);
-                    startActivity(intent);
-                    break;
-
-                case 1:
-                    intent = new Intent(getActivity(), EditTextFLActivity.class);
-                    startActivity(intent);
-                    break;
-                case 2:
-                    intent = new Intent(getActivity(), CardViewActivity.class);
-                    startActivity(intent);
-                    break;
-                case 3:
-                    intent = new Intent(getActivity(), AppBarDetailActivity.class);
-                    startActivity(intent);
-                    break;
-
-                case 4:
-                    intent = new Intent(getActivity(), BottomTabActivity.class);
-                    startActivity(intent);
-                    break;
-            }
-
-
-        }
-    };
 
 
     public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
         private final int mBackground;
         private String[] mDataset;
+
         private final TypedValue mTypedValue = new TypedValue();
 
         // Provide a reference to the views for each data item
         // Complex data items may need more than one view per item, and
         // you provide access to all the views for a data item in a view holder
-        public class ViewHolder extends RecyclerView.ViewHolder {
+        public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
             // each data item is just a string in this case
             public TextView mTextView;
-
-            public int position;
 
             public ViewHolder(View v) {
                 super(v);
                 mTextView = (TextView) v.findViewById(R.id.textView);
+                v.setOnClickListener(this);
+            }
+
+            @Override
+            public void onClick(View view) {
+                String text = "I Love " + mTextView.getText() + ".";
+                Snackbar.make(view, text, Snackbar.LENGTH_SHORT).show();
             }
         }
 
         // Provide a suitable constructor (depends on the kind of dataset)
-        public MyAdapter(Context context, String[] myDataset) {
+        public MyAdapter(Context context ,String[] myDataset) {
             mDataset = myDataset;
             context.getTheme().resolveAttribute(R.attr.selectableItemBackground, mTypedValue, true);
             mBackground = mTypedValue.resourceId;
@@ -129,6 +107,7 @@ public class ExampleFragment extends Fragment {
             return vh;
         }
 
+        // Replace the contents of a view (invoked by the layout manager)
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
             // - get element from your dataset at this position
@@ -143,6 +122,5 @@ public class ExampleFragment extends Fragment {
             return mDataset.length;
         }
     }
-
 
 }

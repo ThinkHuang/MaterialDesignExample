@@ -2,7 +2,6 @@ package com.aswifter.material.book;
 
 import android.support.annotation.NonNull;
 
-import com.aswifter.material.common.AppClient;
 import com.google.android.agera.Result;
 import com.google.android.agera.Supplier;
 import com.google.gson.Gson;
@@ -11,16 +10,12 @@ import com.google.gson.reflect.TypeToken;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-import okhttp3.ResponseBody;
 
 /**
  * Created by chenyc on 16/4/27.
@@ -48,17 +43,29 @@ public class BooksSupplier implements Supplier<Result<List<Book>>> {
 
 
     private List<Book> getBooks() {
-        Map<String, String >params = new HashMap<>();
-        params.put("q",key);
-        params.put("start","0");
-        params.put("end","50");
+        HttpUrl url = HttpUrl.parse(getAbsoluteUrl("book/search"))
+                .newBuilder()
+                .addQueryParameter("q", key)
+                .addQueryParameter("start", "0")
+                .addQueryParameter("end", "50")
+                .build();
+
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+
         try {
-            BookResponse bookResponse = AppClient.httpService.getBooks(params).execute().body();
-            return bookResponse.getBooks();
-        } catch (IOException e) {
+            Response response = client.newCall(request).execute();
+            JSONObject json = new JSONObject(response.body().string());
+            JSONArray jaBooks = json.optJSONArray("books");
+            Gson gson = new Gson();
+            List<Book> books = gson.fromJson(jaBooks.toString(), new TypeToken<List<Book>>() {
+            }.getType());
+            return books;
+        } catch (Exception e) {
             e.printStackTrace();
-            return null;
         }
+        return null;
     }
 
 
@@ -72,4 +79,6 @@ public class BooksSupplier implements Supplier<Result<List<Book>>> {
             return Result.success(books);
         }
     }
+
+
 }
